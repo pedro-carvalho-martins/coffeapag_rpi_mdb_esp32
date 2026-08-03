@@ -20,8 +20,8 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--port",
-        default="/dev/ttyUSB0",
-        help="USB-TTL serial device (default: /dev/ttyUSB0)",
+        default="/dev/serial0",
+        help="Serial device (default: /dev/serial0 for Raspberry Pi GPIO UART)",
     )
     parser.add_argument(
         "--baud",

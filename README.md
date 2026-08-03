@@ -5,16 +5,17 @@ the `mdb-pi-bridge-esp32s3` firmware.
 
 ## Wiring
 
-Use a 3.3 V USB-to-TTL adapter connected to a Raspberry Pi USB port:
+The minimal ESP32 firmware repurposes the board's exposed I2C header as a 3.3 V
+UART because I2C is not used:
 
 ```text
-ESP32 GPIO17 (TX) -> adapter RXD
-ESP32 GPIO18 (RX) -> adapter TXD
-ESP32 GND         -> adapter GND
+ESP32 SDA / GPIO10 (TX) -> Raspberry Pi GPIO15/RXD, physical pin 10
+ESP32 SCL / GPIO11 (RX) -> Raspberry Pi GPIO14/TXD, physical pin 8
+ESP32 GND               -> Raspberry Pi GND, physical pin 6 or another GND
 ```
 
-Leave the adapter's `5V`, `VCC`, and `3V3` pins disconnected. The ESP32 should
-continue to receive its intended power separately.
+Leave the ESP32 `3V3`, `VIN`, and `PULSE` pins disconnected. Power down both
+devices before attaching or removing GPIO wiring.
 
 ## Raspberry Pi setup
 
@@ -26,14 +27,15 @@ python3 -m venv .venv
 python -m pip install -r requirements.txt
 ```
 
-Find the adapter device:
+Enable the Raspberry Pi UART with `sudo raspi-config`. Under `Interface Options`
+and `Serial Port`, disable the login shell and enable the serial hardware, then
+reboot. Confirm the UART device:
 
 ```bash
-ls -l /dev/ttyUSB* /dev/ttyACM* 2>/dev/null
+ls -l /dev/serial0
 ```
 
-A CH340 adapter will normally appear as `/dev/ttyUSB0`. If access is denied,
-add the current user to `dialout`, then sign out and back in:
+If access is denied, add the current user to `dialout`, then sign out and back in:
 
 ```bash
 sudo usermod -aG dialout "$USER"
@@ -44,7 +46,7 @@ sudo usermod -aG dialout "$USER"
 The default decision is DENY, so no product should be dispensed:
 
 ```bash
-python mdb_bridge.py --port /dev/ttyUSB0 --funds 500
+python mdb_bridge.py --funds 500
 ```
 
 The expected sequence includes:
@@ -62,7 +64,7 @@ The expected sequence includes:
 Only use this when the machine is ready to dispense a real product:
 
 ```bash
-python mdb_bridge.py --port /dev/ttyUSB0 --funds 500 --decision approve
+python mdb_bridge.py --funds 500 --decision approve
 ```
 
 For a manual decision, use `--decision prompt`. Respond quickly because the VMC
