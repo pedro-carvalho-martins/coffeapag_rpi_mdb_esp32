@@ -71,3 +71,16 @@ For a manual decision, use `--decision prompt`. Respond quickly because the VMC
 may impose a short cashless response timeout.
 
 Stop the client with `Ctrl+C`.
+
+## Interactive price test
+
+`interactive_vend.py` is a separate test client that displays the product number
+and formatted price, then waits for `y` or `n`:
+
+```bash
+python3 interactive_vend.py --funds 500
+```
+
+The ESP32 advertises a 30-second application response time for this manual test.
+Do not run `interactive_vend.py` and `mdb_bridge.py` at the same time because
+only one process can own `/dev/serial0`.
